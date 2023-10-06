@@ -33,8 +33,21 @@ struct match {
     int matchEndJ;
 } MATCH;
 
-BITMAPINFOHEADER createBitmapHeader(int width, int height)
-{
+/*
+    This function create a Bitmap Header containing all the information to create the BitMap of an image
+
+    IN: -------------------------------------------------------------
+        width: The width of the image (1980 for a screenshot)
+        height: The height of the screen (1080 for a screenshot)
+
+    OUT: ------------------------------------------------------------
+        The BitMap Header of the size of an image
+
+
+    What is a BitMap:
+        A Bitmap is a representation of an image, here, A bitMap Header contains all the necessary informations for the creation of a bitMap
+*/
+BITMAPINFOHEADER createBitmapHeader(int width, int height){
     BITMAPINFOHEADER  bi;
 
     // create a bitmap
@@ -53,36 +66,49 @@ BITMAPINFOHEADER createBitmapHeader(int width, int height)
     return bi;
 }
 
-screenStruct captureScreenMat(HWND hwnd)
-{
+/*
+    This function create the struct containing the screenshot object and all the necessary infos related to it
+
+    IN:
+        hwnd: the desktop window we want to capture
+
+    OUT:
+        all the infos about the screenshot:{
+            the screenshot
+            the screen width
+            the screen height
+        }
+*/
+screenStruct captureScreenMat(HWND hwnd){
     Mat src;
 
-    // get handles to a device context (DC)
+    // Get handles to a device context (DC)
     HDC hwindowDC = GetDC(hwnd);
     HDC hwindowCompatibleDC = CreateCompatibleDC(hwindowDC);
     SetStretchBltMode(hwindowCompatibleDC, COLORONCOLOR);
 
-    // define scale, height and width
+    // Define scale, height and width
     int screenx = 0;
     int screeny = 0;
     int width = GetSystemMetrics(SM_CXSCREEN);
     int height = GetSystemMetrics(SM_CYSCREEN);
 
-    // create mat object
+    // Create mat object
     src.create(height, width, CV_8UC4);
 
-    // create a bitmap
+    // Create a bitmap
     HBITMAP hbwindow = CreateCompatibleBitmap(hwindowDC, width, height);
     BITMAPINFOHEADER bi = createBitmapHeader(width, height);
 
-    // use the previously created device context with the bitmap
+    // Use the previously created device context with the bitmap
     SelectObject(hwindowCompatibleDC, hbwindow);
 
-    // copy from the window device context to the bitmap device context
-    StretchBlt(hwindowCompatibleDC, 0, 0, width, height, hwindowDC, screenx, screeny, width, height, SRCCOPY);  //change SRCCOPY to NOTSRCCOPY for wacky colors !
-    GetDIBits(hwindowCompatibleDC, hbwindow, 0, height, src.data, (BITMAPINFO*)&bi, DIB_RGB_COLORS);            //copy from hwindowCompatibleDC to hbwindow
+    // Copy from the window device context to the bitmap device context
+    StretchBlt(hwindowCompatibleDC, 0, 0, width, height, hwindowDC, screenx, screeny, width, height, SRCCOPY);
+    GetDIBits(hwindowCompatibleDC, hbwindow, 0, height, src.data, (BITMAPINFO*)&bi, DIB_RGB_COLORS);
 
-    // avoid memory leak
+
+    // When we copied the screenshot in the "src" variable, free all the bitmap allocated
     DeleteObject(hbwindow);
     DeleteDC(hwindowCompatibleDC);
     ReleaseDC(hwnd, hwindowDC);
@@ -90,18 +116,40 @@ screenStruct captureScreenMat(HWND hwnd)
     return { src, width, height };
 }
 
+/*
+    This function create the struct containing the image object and all the necessary infos related to it
+
+    IN:
+        hwnd: the url to the object
+
+    OUT:
+        all the infos about the image:{
+            the image
+            RGB values
+            its width
+            its height
+        }
+*/
 imageStruct captureImageMat(string imgUrl) {
+    // Stock the image in a variable
     Mat image = imread("C:/Users/tulki/Documents/Projects/Waven/img/Sanstitre.png");
+
+    // Get all the datas
     int imgr1 = image.at<Vec3b>(0, 0)[2];
     int imgg1 = image.at<Vec3b>(0, 0)[1];
     int imgb1 = image.at<Vec3b>(0, 0)[0];
     int imgcols = image.cols;
     int imgrows = image.rows;
 
-    cv::imwrite("C:\\Users\\tulki\\Documents\\Screenshot2.png", image);
     return { image, imgr1, imgg1, imgb1, imgcols, imgrows };
 }
 
+/*
+    This function check for a full match between the target image and the bigger source image (or screen)
+
+    IN:
+        
+*/
 bool checkForCompleteMatch(screenStruct screen, imageStruct img, int screenI, int screenJ) {
     for (int i = 0; i < img.image.rows - 1; i++) {
         for (int j = 0; j < img.image.cols - 1; j++) {
@@ -114,7 +162,6 @@ bool checkForCompleteMatch(screenStruct screen, imageStruct img, int screenI, in
             if (rscreen != rimage || gscreen != gimage || bscreen != bimage) { return false; }
         }
     }
-    cout << "true\n";
     SetCursorPos(screenJ, screenI);
     return true;
 }
@@ -127,7 +174,6 @@ int findFirstMatchingPixelOnScreen(screenStruct screen, imageStruct img) {
             int b = screen.screenInfo.data[screen.screenInfo.channels() * (screen.screenInfo.cols * i + j) + 0];
 
             if (r == img.r1 && g == img.g1 && b == img.b1) {
-                cout << "match\n";
                 checkForCompleteMatch(screen, img, i, j);
             }
         }
@@ -135,8 +181,7 @@ int findFirstMatchingPixelOnScreen(screenStruct screen, imageStruct img) {
     return 1;
 }
 
-int main()
-{
+int locateOnScreen() {
     // capture image
     HWND hwnd = GetDesktopWindow();
     screenStruct src = captureScreenMat(hwnd);
@@ -147,5 +192,10 @@ int main()
     cv::imwrite("C:\\Users\\tulki\\Documents\\Screenshot.png", src.screenInfo);
 
 
+}
+
+int main()
+{
+    locateOnScreen();
     return 0;
 }
