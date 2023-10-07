@@ -129,7 +129,7 @@ screenStruct captureScreenMat(HWND hwnd){
     This function create the struct containing the image object and all the necessary infos related to it
 
     IN: -------------------------------------------------------------
-        hwnd: the url to the object
+        hwnd: the path to the object
 
     OUT: ------------------------------------------------------------
         all the infos about the image:{
@@ -139,9 +139,9 @@ screenStruct captureScreenMat(HWND hwnd){
             its height
         }
 */
-imageStruct captureImageMat(string imgUrl) {
+imageStruct captureImageMat(string imgPath) {
     // Stock the image in a variable
-    Mat image = imread(imgUrl);
+    Mat image = imread(imgPath);
 
     // Get all the datas
     int imgr1 = image.at<Vec3b>(0, 0)[2];
@@ -202,7 +202,21 @@ coordinate2D checkForCompleteMatch(screenStruct screen, imageStruct img, int hay
     };
 }
 
+/*
+    This function find all the potential matches, it check every pixel of the screen/big image (the haystack)
+    if a certain pixel of the screen/big image (the haystack) completly correspond to the first pixel of the target image (the needle), call the function checkForCompleteMatch
+    If the match is complete: Stock the coordinate in a list, if not, skip to the next pixel
+    !! The big image (haystack) need to be of screenStruct type (whether it's a screen capture or not)
 
+    IN: -------------------------------------------------------------
+       the screen or the main image (the haystack)
+       the target image (the needle)
+
+    OUT: ------------------------------------------------------------
+        The list of coordinates of all the occurence:
+        List of type <coordinate2D>
+
+*/
 list<coordinate2D> findMatchingPixelOnScreen(screenStruct screen, imageStruct img) {
     list <coordinate2D> coordinatesList;
     // Check every pixel to find a potential match
@@ -227,11 +241,37 @@ list<coordinate2D> findMatchingPixelOnScreen(screenStruct screen, imageStruct im
     return coordinatesList;
 }
 
-list <coordinate2D> locateOnScreen(string imgUrl) {
+/*
+    This function locate an image (the needle) in the screen (the haystack)
+
+    IN: -------------------------------------------------------------
+        The target image (the needle) path (exemple: C:/Users/<user>/Documents/image.png)
+
+    OUT: ------------------------------------------------------------
+        The list of coordinates of all the occurence:
+            List of type <coordinate2D>
+
+            coordinate2D: {
+            (x1,y1) ---- (x1,y1)
+               |            |
+               |            |
+               |            |
+            (x1,y2) -----(x2,y2)
+        }
+
+        the point of coordinate (xMiddle, yMiddle) is the center of the image
+        (IE: setCursorPos(yMiddle, xMiddle) will set the position of the cursor at the middle of the target image)
+
+        -------------------------------------------------------------
+        In order to set the position of your cursor onto the middle of an image:
+        Use:
+            SetCursorPos(List<coordinate2D>.front().yMiddle, List<coordinate2D>.front().xMiddle)
+*/
+list <coordinate2D> locateOnScreen(string imgPath) {
     // capture image
     HWND hwnd = GetDesktopWindow();
     screenStruct src = captureScreenMat(hwnd);
-    imageStruct img = captureImageMat(imgUrl);
+    imageStruct img = captureImageMat(imgPath);
 
     return findMatchingPixelOnScreen(src, img);
 }
