@@ -33,6 +33,15 @@ struct match {
     int matchEndJ;
 } MATCH;
 
+struct coordinate2D {
+    int x1;
+    int y1;
+    int x2;
+    int y2;
+    int xMiddle;
+    int yMiddle;
+};
+
 /*
     This function create a Bitmap Header containing all the information to create the BitMap of an image
 
@@ -69,10 +78,10 @@ BITMAPINFOHEADER createBitmapHeader(int width, int height){
 /*
     This function create the struct containing the screenshot object and all the necessary infos related to it
 
-    IN:
+    IN: -------------------------------------------------------------
         hwnd: the desktop window we want to capture
 
-    OUT:
+    OUT: ------------------------------------------------------------
         all the infos about the screenshot:{
             the screenshot
             the screen width
@@ -119,10 +128,10 @@ screenStruct captureScreenMat(HWND hwnd){
 /*
     This function create the struct containing the image object and all the necessary infos related to it
 
-    IN:
+    IN: -------------------------------------------------------------
         hwnd: the url to the object
 
-    OUT:
+    OUT: ------------------------------------------------------------
         all the infos about the image:{
             the image
             RGB values
@@ -132,7 +141,7 @@ screenStruct captureScreenMat(HWND hwnd){
 */
 imageStruct captureImageMat(string imgUrl) {
     // Stock the image in a variable
-    Mat image = imread("C:/Users/tulki/Documents/Projects/Waven/img/Sanstitre.png");
+    Mat image = imread(imgUrl);
 
     // Get all the datas
     int imgr1 = image.at<Vec3b>(0, 0)[2];
@@ -146,56 +155,93 @@ imageStruct captureImageMat(string imgUrl) {
 
 /*
     This function check for a full match between the target image and the bigger source image (or screen)
+    !! The big image (haystack) need to be of screenStruct type (whether it's a screen capture or not)
 
-    IN:
-        
+    IN: -------------------------------------------------------------
+        the screen or the main image (the haystack)
+        the target image (the needle)
+        the x haystack axis
+        the y haystack axis
+
+    OUT: ------------------------------------------------------------
+        coordinate of the target image (the needle) if found on the haystack {x1, x2, y1, y2, xMiddle, yMiddle}
+        representing the full rectangle coordinate: {
+            (x1,y1) ---- (x1,y1)
+               |            |
+               |            |
+               |            |
+            (x1,y2) -----(x2,y2)
+        }
+
+        the point of coordinate (xMiddle, yMiddle) is the center of the image
+        (IE: setCursorPos(yMiddle, xMiddle) will set the position of the cursor at the middle of the target image)
 */
-bool checkForCompleteMatch(screenStruct screen, imageStruct img, int screenI, int screenJ) {
+coordinate2D checkForCompleteMatch(screenStruct screen, imageStruct img, int haystackI, int haystackJ) {
+    // Check every pixel of the target image (the needle) to check if it correspond
     for (int i = 0; i < img.image.rows - 1; i++) {
         for (int j = 0; j < img.image.cols - 1; j++) {
-            int rscreen = screen.screenInfo.data[screen.screenInfo.channels() * (screen.screenInfo.cols * (screenI + i) + (screenJ + j)) + 2];
-            int gscreen = screen.screenInfo.data[screen.screenInfo.channels() * (screen.screenInfo.cols * (screenI + i) + (screenJ + j)) + 1];
-            int bscreen = screen.screenInfo.data[screen.screenInfo.channels() * (screen.screenInfo.cols * (screenI + i) + (screenJ + j)) + 0];
+            // Check if both images' pixels correspond to one another
+            int rscreen = screen.screenInfo.data[screen.screenInfo.channels() * (screen.screenInfo.cols * (haystackI + i) + (haystackJ + j)) + 2];
+            int gscreen = screen.screenInfo.data[screen.screenInfo.channels() * (screen.screenInfo.cols * (haystackI + i) + (haystackJ + j)) + 1];
+            int bscreen = screen.screenInfo.data[screen.screenInfo.channels() * (screen.screenInfo.cols * (haystackI + i) + (haystackJ + j)) + 0];
             int rimage = img.image.data[img.image.channels() * (img.image.cols * i + j) + 2];
             int gimage = img.image.data[img.image.channels() * (img.image.cols * i + j) + 1];
             int bimage = img.image.data[img.image.channels() * (img.image.cols * i + j) + 0];
-            if (rscreen != rimage || gscreen != gimage || bscreen != bimage) { return false; }
+
+            // If not a matching pixel -> return an "error" coordinate2D
+            if (rscreen != rimage || gscreen != gimage || bscreen != bimage) { return {-1, -1, -1, -1}; }
         }
     }
-    SetCursorPos(screenJ, screenI);
-    return true;
+    return { 
+        haystackI,
+        haystackJ,
+        haystackI + img.image.rows,
+        haystackJ + img.image.cols,
+        (haystackI + haystackI + img.image.rows )/2,
+        (haystackJ + haystackJ + img.image.cols)/2
+    };
 }
 
-int findFirstMatchingPixelOnScreen(screenStruct screen, imageStruct img) {
+
+list<coordinate2D> findMatchingPixelOnScreen(screenStruct screen, imageStruct img) {
+    list <coordinate2D> coordinatesList;
+    // Check every pixel to find a potential match
     for (int i = 0; i < screen.screenHeight; i++) {
         for (int j = 0; j < screen.screenWidth; j++) {
             int r = screen.screenInfo.data[screen.screenInfo.channels() * (screen.screenInfo.cols * i + j) + 2];
             int g = screen.screenInfo.data[screen.screenInfo.channels() * (screen.screenInfo.cols * i + j) + 1];
             int b = screen.screenInfo.data[screen.screenInfo.channels() * (screen.screenInfo.cols * i + j) + 0];
 
+            // If detect a matching first pixel (IE: if we see a potential match) -> Check if it match perfectly
             if (r == img.r1 && g == img.g1 && b == img.b1) {
-                checkForCompleteMatch(screen, img, i, j);
+                coordinate2D newCoordinate = checkForCompleteMatch(screen, img, i, j);
+                if (newCoordinate.x1 != -1 \
+                    && newCoordinate.y1 != -1 \
+                    && newCoordinate.x2 != -1 \
+                    && newCoordinate.y2 != -1) {
+                    coordinatesList.push_back(newCoordinate);
+                }
             }
         }
     }
-    return 1;
+    return coordinatesList;
 }
 
-int locateOnScreen() {
+list <coordinate2D> locateOnScreen(string imgUrl) {
     // capture image
     HWND hwnd = GetDesktopWindow();
     screenStruct src = captureScreenMat(hwnd);
-    imageStruct img = captureImageMat("a");
+    imageStruct img = captureImageMat(imgUrl);
 
-    findFirstMatchingPixelOnScreen(src, img);
-    // save img
-    cv::imwrite("C:\\Users\\tulki\\Documents\\Screenshot.png", src.screenInfo);
-
-
+    return findMatchingPixelOnScreen(src, img);
 }
 
 int main()
 {
-    locateOnScreen();
+    list <coordinate2D> coordinateList = locateOnScreen("C:/Users/tulki/Documents/Projects/Waven/img/Sanstitre.png");
+
+    coordinate2D imageFront = coordinateList.front();
+
+    SetCursorPos(imageFront.yMiddle, imageFront.xMiddle);
     return 0;
 }
