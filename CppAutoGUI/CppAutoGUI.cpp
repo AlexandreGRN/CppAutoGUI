@@ -25,14 +25,6 @@ struct imageStruct {
     int rowsHeight;
 } IMG;
 
-struct match {
-    bool isMatch;
-    int matchStartI;
-    int matchStartJ;
-    int matchEndI;
-    int matchEndJ;
-} MATCH;
-
 struct coordinate2D {
     int x1;
     int y1;
