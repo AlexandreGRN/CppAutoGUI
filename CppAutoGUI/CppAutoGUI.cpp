@@ -23,6 +23,8 @@ struct imageStruct {
     int b1;
     int imageWidth;
     int rowsHeight;
+    int firstI;
+    int firstJ;
 } IMG;
 
 struct coordinate2D {
@@ -137,16 +139,31 @@ screenStruct captureScreenMat(HWND hwnd){
 */
 imageStruct captureImageMat(string imgPath) {
     // Stock the image in a variable
-    Mat image = imread(imgPath);
+    Mat image = imread(imgPath, IMREAD_UNCHANGED);
 
     // Get all the datas
-    int imgr1 = image.at<Vec3b>(0, 0)[2];
-    int imgg1 = image.at<Vec3b>(0, 0)[1];
-    int imgb1 = image.at<Vec3b>(0, 0)[0];
     int imgcols = image.cols;
     int imgrows = image.rows;
+    int imgr1, imgg1, imgb1, imgalpha1, firstColorCoordinateI, firstColorCoordinateJ;
+    for (int i = 0; i < image.rows; i++) {
+        for (int j = 0; j < image.cols; j++) {
+            if (int(image.at<Vec4b>(i, j)[3]) != 0) {
+                imgr1 = image.at<Vec4b>(i, j)[2];
+                imgg1 = image.at<Vec4b>(i, j)[1];
+                imgb1 = image.at<Vec4b>(i, j)[0];
+                imgalpha1 = image.at<Vec4b>(i, j)[3];
+                firstColorCoordinateI = i;
+                firstColorCoordinateJ = j;
+                goto found;
+            }
+        }
+    }
+    throw 99;
 
-    return { image, imgr1, imgg1, imgb1, imgcols, imgrows };
+    found:
+    cout << firstColorCoordinateI << "\n";
+    cout << firstColorCoordinateJ << "\n";
+    return { image, imgr1, imgg1, imgb1, imgcols, imgrows, firstColorCoordinateI, firstColorCoordinateJ };
 }
 
 /*
@@ -166,7 +183,7 @@ imageStruct captureImageMat(string imgPath) {
                |            |
                |            |
                |            |
-            (x1,y2) -----(x2,y2)
+            (x1,y2) ---- (x2,y2)
         }
 
         the point of coordinate (xMiddle, yMiddle) is the center of the image
@@ -174,13 +191,16 @@ imageStruct captureImageMat(string imgPath) {
 */
 coordinate2D checkForCompleteMatch(screenStruct screen, imageStruct img, int haystackI, int haystackJ) {
     // Check every pixel of the target image (the needle) to check if it correspond
+    int truehaystackI = haystackI - img.firstI;
+    int truehaystackJ = haystackJ - img.firstJ;
     for (int i = 0; i < img.image.rows - 1; i++) {
         if (haystackI + i >= GetSystemMetrics(SM_CYSCREEN)){ return { -1, -1, -1, -1 }; }
         for (int j = 0; j < img.image.cols - 1; j++) {
+            if (img.image.data[img.image.channels() * (img.image.cols * i + j) + 3] == 0) { continue; }
             // Check if both images' pixels correspond to one another
-            int rscreen = screen.screenInfo.data[screen.screenInfo.channels() * (screen.screenInfo.cols * (haystackI + i) + (haystackJ + j)) + 2];
-            int gscreen = screen.screenInfo.data[screen.screenInfo.channels() * (screen.screenInfo.cols * (haystackI + i) + (haystackJ + j)) + 1];
-            int bscreen = screen.screenInfo.data[screen.screenInfo.channels() * (screen.screenInfo.cols * (haystackI + i) + (haystackJ + j)) + 0];
+            int rscreen = screen.screenInfo.data[screen.screenInfo.channels() * (screen.screenInfo.cols * (truehaystackI + i) + (truehaystackJ + j)) + 2];
+            int gscreen = screen.screenInfo.data[screen.screenInfo.channels() * (screen.screenInfo.cols * (truehaystackI + i) + (truehaystackJ + j)) + 1];
+            int bscreen = screen.screenInfo.data[screen.screenInfo.channels() * (screen.screenInfo.cols * (truehaystackI + i) + (truehaystackJ + j)) + 0];
             int rimage = img.image.data[img.image.channels() * (img.image.cols * i + j) + 2];
             int gimage = img.image.data[img.image.channels() * (img.image.cols * i + j) + 1];
             int bimage = img.image.data[img.image.channels() * (img.image.cols * i + j) + 0];
@@ -193,12 +213,12 @@ coordinate2D checkForCompleteMatch(screenStruct screen, imageStruct img, int hay
         }
     }
     return { 
-        haystackI,
-        haystackJ,
-        haystackI + img.image.rows,
-        haystackJ + img.image.cols,
-        (haystackI + haystackI + img.image.rows )/2,
-        (haystackJ + haystackJ + img.image.cols)/2
+        truehaystackI,
+        truehaystackJ,
+        truehaystackI + img.image.rows,
+        truehaystackJ + img.image.cols,
+        (truehaystackI + truehaystackI + img.image.rows )/2,
+        (truehaystackJ + truehaystackJ + img.image.cols)/2
     };
 }
 
@@ -256,7 +276,7 @@ list<coordinate2D> findMatchingPixelOnScreen(screenStruct screen, imageStruct im
                |            |
                |            |
                |            |
-            (x1,y2) -----(x2,y2)
+            (x1,y2) ---- (x2,y2)
         }
 
         the point of coordinate (xMiddle, yMiddle) is the center of the image
@@ -285,11 +305,13 @@ int main()
     coordinate2D imageFront1;
 
     auto start = chrono::high_resolution_clock::now();
-    coordinateList1 = locateOnScreen("C:/Users/Tulkii/Pictures/Screenshots/cpp.png");
+    coordinateList1 = locateOnScreen("C:/Users/Tulkii/Pictures/Screenshots/cpp_weird_invisible.png");
     imageFront1 = coordinateList1.front();
     SetCursorPos(imageFront1.yMiddle, imageFront1.xMiddle);
     auto stop = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
     cout << duration.count() << "\n";
+
+    // 66.000 microsec for png
     return 0;
 }
