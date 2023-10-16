@@ -6,7 +6,7 @@
 #include <opencv2/highgui.hpp>
 #include <chrono>
 #include <thread>
-
+#include <filesystem>
 using namespace cv;
 using namespace std;
 
@@ -274,6 +274,8 @@ list <coordinate2D> locateOnScreen(string imgPath) {
     imageStruct img = captureImageMat(imgPath);
 
     imwrite("C:/Users/Tulkii/Pictures/Screenshots/hardu.png", src.screenInfo);
+
+
     return findMatchingPixelOnScreen(src, img);
 }
 
