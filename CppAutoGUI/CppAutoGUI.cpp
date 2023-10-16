@@ -34,6 +34,10 @@ struct coordinate2D {
     int yMiddle;
 };
 
+bool isWithinInterval(double value, double target, double interval) {
+    return (std::fabs(value - target) <= interval);
+}
+
 /*
     This function create a Bitmap Header containing all the information to create the BitMap of an image
 
@@ -171,6 +175,7 @@ imageStruct captureImageMat(string imgPath) {
 coordinate2D checkForCompleteMatch(screenStruct screen, imageStruct img, int haystackI, int haystackJ) {
     // Check every pixel of the target image (the needle) to check if it correspond
     for (int i = 0; i < img.image.rows - 1; i++) {
+        if (haystackI + i >= GetSystemMetrics(SM_CYSCREEN)){ return { -1, -1, -1, -1 }; }
         for (int j = 0; j < img.image.cols - 1; j++) {
             // Check if both images' pixels correspond to one another
             int rscreen = screen.screenInfo.data[screen.screenInfo.channels() * (screen.screenInfo.cols * (haystackI + i) + (haystackJ + j)) + 2];
@@ -181,7 +186,10 @@ coordinate2D checkForCompleteMatch(screenStruct screen, imageStruct img, int hay
             int bimage = img.image.data[img.image.channels() * (img.image.cols * i + j) + 0];
 
             // If not a matching pixel -> return an "error" coordinate2D
-            if (rscreen != rimage || gscreen != gimage || bscreen != bimage) { return {-1, -1, -1, -1}; }
+            if (!(isWithinInterval(rscreen, rimage, 1.0) || isWithinInterval(gscreen, gimage, 1.0) || isWithinInterval(bscreen, bimage, 1.0)))
+            {
+                return { -1, -1, -1, -1 };
+            }
         }
     }
     return { 
@@ -219,7 +227,7 @@ list<coordinate2D> findMatchingPixelOnScreen(screenStruct screen, imageStruct im
             int b = screen.screenInfo.data[screen.screenInfo.channels() * (screen.screenInfo.cols * i + j) + 0];
 
             // If detect a matching first pixel (IE: if we see a potential match) -> Check if it match perfectly
-            if (r == img.r1 && g == img.g1 && b == img.b1) {
+            if (isWithinInterval(r, img.r1, 1.0) && isWithinInterval(g, img.g1, 1.0) && isWithinInterval(b, img.b1, 1.0)) {
                 coordinate2D newCoordinate = checkForCompleteMatch(screen, img, i, j);
                 if (newCoordinate.x1 != -1 \
                     && newCoordinate.y1 != -1 \
@@ -265,15 +273,21 @@ list <coordinate2D> locateOnScreen(string imgPath) {
     screenStruct src = captureScreenMat(hwnd);
     imageStruct img = captureImageMat(imgPath);
 
+    imwrite("C:/Users/Tulkii/Pictures/Screenshots/hardu.png", src.screenInfo);
     return findMatchingPixelOnScreen(src, img);
 }
 
 int main()
 {
-    list <coordinate2D> coordinateList = locateOnScreen("C:/Users/tulki/Documents/Projects/Waven/img/Sanstitre.png");
+    list <coordinate2D> coordinateList1;
+    coordinate2D imageFront1;
 
-    coordinate2D imageFront = coordinateList.front();
-
-    SetCursorPos(imageFront.yMiddle, imageFront.xMiddle);
+    auto start = chrono::high_resolution_clock::now();
+    coordinateList1 = locateOnScreen("C:/Users/Tulkii/Pictures/Screenshots/cpp.png");
+    imageFront1 = coordinateList1.front();
+    SetCursorPos(imageFront1.yMiddle, imageFront1.xMiddle);
+    auto stop = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
+    cout << duration.count() << "\n";
     return 0;
 }
