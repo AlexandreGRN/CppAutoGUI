@@ -1,40 +1,4 @@
-#include <opencv2/opencv.hpp>
-#include <iostream>
-#include <Windows.h>
-#include <string>
-#include <typeinfo>
-#include <opencv2/highgui.hpp>
-#include <chrono>
-#include <thread>
-#include <filesystem>
-using namespace cv;
-using namespace std;
-
-struct screenStruct {
-    Mat screenInfo;
-    int screenWidth;
-    int screenHeight;
-} SCREENSHOT;
-
-struct imageStruct {
-    Mat image;
-    int r1;
-    int g1;
-    int b1;
-    int imageWidth;
-    int rowsHeight;
-    int firstI;
-    int firstJ;
-} IMG;
-
-struct coordinate2D {
-    int x1;
-    int y1;
-    int x2;
-    int y2;
-    int xMiddle;
-    int yMiddle;
-};
+#include "CppAutoGUI.h"
 
 bool isWithinInterval(double value, double target, double interval) {
     return (std::fabs(value - target) <= interval);
@@ -305,13 +269,13 @@ int main()
     coordinate2D imageFront1;
 
     auto start = chrono::high_resolution_clock::now();
-    coordinateList1 = locateOnScreen("C:/Users/Tulkii/Pictures/Screenshots/cpp_weird_invisible.png");
+    coordinateList1 = locateOnScreen("C:/Users/Tulkii/Pictures/Screenshots/b.png");
     imageFront1 = coordinateList1.front();
     SetCursorPos(imageFront1.yMiddle, imageFront1.xMiddle);
     auto stop = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
     cout << duration.count() << "\n";
 
-    // 66.000 microsec for png
+    // 66.000 microsec for png needle file on screen
     return 0;
 }

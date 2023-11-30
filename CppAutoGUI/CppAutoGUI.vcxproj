@@ -132,6 +132,9 @@
   <ItemGroup>
     <ClCompile Include="CppAutoGUI.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CppAutoGUI.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
