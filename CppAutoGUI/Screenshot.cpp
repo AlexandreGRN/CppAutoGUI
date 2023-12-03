@@ -85,8 +85,8 @@ void Screenshot::captureScreenMat(HWND hwnd) {
     DeleteDC(hwindowCompatibleDC);
     ReleaseDC(hwnd, hwindowDC);
 
-    this->setImage(src);
-    this->setImageWidth(width);
-    this->setImageHeight(height);
+    this->image = src;
+    this->imageWidth = width;
+    this->imageHeight = height;
     this->bIsScreen = true;
 }

@@ -4,7 +4,7 @@
 class Image
 {
 // Properties --------------------------------------------------------
-private:
+public:
     cv::Mat image;
     int r1 = 0;
     int g1 = 0;
@@ -16,26 +16,4 @@ private:
 
 public:
     bool bIsScreen = false;
-
-// Methods -----------------------------------------------------------
-public:
-    // Getters
-    cv::Mat getImage();
-	int getR1();
-	int getG1();
-	int getB1();
-	int getImageWidth();
-	int getImageHeight();
-	int getFirstICoordinate();
-	int getFirstJCoordinate();
-
-    // Setters
-	void setImage(cv::Mat Image);
-    void setR1(int r);
-    void setG1(int g);
-    void setB1(int b);
-    void setImageWidth(int width);
-    void setImageHeight(int height);
-    void setFirstICoordinate(int i);
-    void setFirstJCoordinate(int j);
 };

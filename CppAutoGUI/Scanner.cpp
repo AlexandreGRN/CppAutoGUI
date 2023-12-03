@@ -3,12 +3,14 @@
 #include "Libraries.h"
 
 Scanner::Scanner() {
-    
+
 }
 
 bool Scanner::isWithinInterval(double value, double target, double interval) {
     return (std::fabs(value - target) <= interval);
 }
+
+
 /*
     This function check for a full match between the target image and the bigger source image (or screen)
     !! The big image (haystack) need to be of screenStruct type (whether it's a screen capture or not)
@@ -34,23 +36,23 @@ bool Scanner::isWithinInterval(double value, double target, double interval) {
 */
 coordinate2D Scanner::checkForCompleteMatch(Image Haystack, Image Needle, int haystackI, int haystackJ) {
     // Check every pixel of the target image (the needle) to check if it correspond
-    int truehaystackI = haystackI - Needle.getFirstICoordinate();
-    int truehaystackJ = haystackJ - Needle.getFirstJCoordinate();
-    auto HaystackData = Haystack.getImage().data;
-    auto NeedleData = Needle.getImage().data;
-    int HaystackChannels = Haystack.getImage().channels();
-    int NeedleChannels = Needle.getImage().channels();
-    int NeedleHeight = Needle.getImage().rows;
-    int NeedleWidth = Needle.getImage().cols;
-    int HaystackWidth = Haystack.getImage().cols;
+    int truehaystackI = haystackI - Needle.firstI;
+    int truehaystackJ = haystackJ - Needle.firstJ;
+    auto HaystackData = Haystack.image.data;
+    auto NeedleData = Needle.image.data;
+    int HaystackChannels = Haystack.image.channels();
+    int NeedleChannels = Needle.image.channels();
+    int NeedleHeight = Needle.image.rows;
+    int NeedleWidth = Needle.image.cols;
+    int HaystackWidth = Haystack.image.cols;
 
     for (int i = 0; i < NeedleHeight - 1; i++) {
         if (haystackI + i >= GetSystemMetrics(SM_CYSCREEN)) { return { -1, -1, -1, -1 }; }
         for (int j = 0; j < NeedleWidth - 1; j++) {
-            if (Needle.getImage().data[Needle.getImage().channels() * (NeedleWidth * i + j) + 3] == 0) { continue; }
             // Check if both images' pixels correspond to one another
             int HaystackTargetPixel = HaystackChannels * (HaystackWidth * (truehaystackI + i) + (truehaystackJ + j));
             int NeedleTargetPixel = NeedleChannels * (NeedleWidth * i + j);
+            if (NeedleData[NeedleTargetPixel + 3] == 0) { continue; }
             int rHaystack = HaystackData[HaystackTargetPixel + 2];
             int gHaystack = HaystackData[HaystackTargetPixel + 1];
             int bHaystack = HaystackData[HaystackTargetPixel + 0];
@@ -59,7 +61,7 @@ coordinate2D Scanner::checkForCompleteMatch(Image Haystack, Image Needle, int ha
             int bNeedle = NeedleData[NeedleTargetPixel + 0];
 
             // If not a matching pixel -> return an "error" coordinate2D
-            if (!(isWithinInterval(rHaystack, rNeedle, 1.0)  || isWithinInterval(gHaystack, gNeedle, 1.0) || isWithinInterval(bHaystack, bNeedle, 1.0)))
+            if (!(isWithinInterval(rHaystack, rNeedle, 1.0) || isWithinInterval(gHaystack, gNeedle, 1.0) || isWithinInterval(bHaystack, bNeedle, 1.0)))
             {
                 return { -1, -1, -1, -1 };
             }
@@ -68,10 +70,10 @@ coordinate2D Scanner::checkForCompleteMatch(Image Haystack, Image Needle, int ha
     return {
         truehaystackI,
         truehaystackJ,
-        truehaystackI + Needle.getImage().rows,
-        truehaystackJ + Needle.getImage().cols,
-        (truehaystackI + truehaystackI + Needle.getImage().rows) / 2,
-        (truehaystackJ + truehaystackJ + Needle.getImage().cols) / 2
+        truehaystackI + Needle.image.rows,
+        truehaystackJ + Needle.image.cols,
+        (truehaystackI + truehaystackI + Needle.image.rows) / 2,
+        (truehaystackJ + truehaystackJ + Needle.image.cols) / 2
     };
 }
 
@@ -92,13 +94,13 @@ coordinate2D Scanner::checkForCompleteMatch(Image Haystack, Image Needle, int ha
 */
 std::list<coordinate2D> Scanner::findMatchingPixelOnScreen(Image Haystack, Image Needle) {
     std::list<coordinate2D> coordinatesList;
-    int HaystackHeight = Haystack.getImageHeight();
-    int HaystackWidth = Haystack.getImageWidth();
-    int NeedleR1 = Needle.getR1();
-    int NeedleG1 = Needle.getG1();
-    int NeedleB1 = Needle.getB1();
-    int channels = Haystack.getImage().channels();
-    auto data = Haystack.getImage().data;
+    int HaystackHeight = Haystack.imageHeight;
+    int HaystackWidth = Haystack.imageWidth;
+    int NeedleR1 = Needle.r1;
+    int NeedleG1 = Needle.g1;
+    int NeedleB1 = Needle.b1;
+    int channels = Haystack.image.channels();
+    auto data = Haystack.image.data;
     // Check every pixel to find a potential match
     for (int i = 0; i < HaystackHeight; i++) {
         for (int j = 0; j < HaystackWidth; j++) {
