@@ -82,9 +82,6 @@ coordinate2D Scanner::checkForCompleteMatch(Image Haystack, Image Needle, int ha
 */
 std::list<coordinate2D> Scanner::findMatchingPixelOnScreen(Image Haystack, Image Needle) {
     std::list<coordinate2D> coordinatesList;
-    std::cout << "Needle r1: " << Needle.r1 << "\n";
-    std::cout << "Needle g1: " << Needle.g1 << "\n";
-    std::cout << "Needle b1: " << Needle.b1 << "\n";
     // Check every pixel to find a potential match
     for (int i = 0; i < Haystack.imageHeight; i++) {
         for (int j = 0; j < Haystack.imageWidth; j++) {

@@ -10,14 +10,13 @@ int main()
 {
     coordinate2D imageFront1;
 
-    //auto start = chrono::high_resolution_clock::now();
-    //auto stop = chrono::high_resolution_clock::now();
-    //auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
-    //cout << duration.count() << "\n";
+    //auto start = std::chrono::high_resolution_clock::now();
+    //auto stop = std::chrono::high_resolution_clock::now();
+    //auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+    //std::cout << duration.count() << "\n";
     Image Haystack = Screenshot();
-    Image Needle = ImageSource("C:/Users/Tulkii/Pictures/Screenshots/cap.png");
+    Image Needle = ImageSource("C:/Users/Tulkii/Pictures/Screenshots/mr.png");
     Scanner scanner = Scanner();
-    std::cout << scanner.locateOnScreen(Haystack, Needle).size() << "\n";
     imageFront1 = scanner.locateOnScreen(Haystack, Needle).front();
     SetCursorPos(imageFront1.yMiddle, imageFront1.xMiddle);
 
