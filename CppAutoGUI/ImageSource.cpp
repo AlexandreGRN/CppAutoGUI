@@ -44,12 +44,12 @@ void ImageSource::captureImageMat(std::string imgPath) {
     throw 99;
 
 found:
-    this->image = image;
-    this->b1 = imgb1;
-    this->g1 = imgg1;
-    this->r1 = imgr1;
-    this->imageWidth = imgcols;
-    this->imageHeight = imgrows;
-    this->firstI = firstColorCoordinateI;
-    this->firstJ = firstColorCoordinateJ;
+    this->setB1(imgb1);
+    this->setG1(imgg1);
+    this->setR1(imgr1);
+    this->setImageWidth(imgcols);
+    this->setImageHeight(imgrows);
+    this->setFirstICoordinate(firstColorCoordinateI);
+    this->setFirstJCoordinate(firstColorCoordinateJ);
+    this->setImage(image);
 }

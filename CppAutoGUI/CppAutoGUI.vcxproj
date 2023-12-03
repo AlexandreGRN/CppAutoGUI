@@ -131,6 +131,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CppAutoGUI.cpp" />
+    <ClCompile Include="Image.cpp" />
     <ClCompile Include="ImageSource.cpp" />
     <ClCompile Include="Scanner.cpp" />
     <ClCompile Include="Screenshot.cpp" />

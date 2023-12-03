@@ -5,7 +5,6 @@
 
 class Screenshot : public Image
 {
-	// Methods
 public:
 	Screenshot();
 private:
