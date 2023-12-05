@@ -1,6 +1,6 @@
 #include "Screenshot.h"
 
-Screenshot::Screenshot()
+Screenshot::Screenshot() : Image()
 {
     captureScreenMat(GetDesktopWindow());
 }

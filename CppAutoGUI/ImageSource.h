@@ -2,11 +2,12 @@
 #include "Libraries.h"
 #include "image.h"
 
-class ImageSource : public Image
+// ImageSource not supposed to change throughout the program -> constexpr class | Not the case for Screenshot
+constexpr class ImageSource : public Image
 {
 	// Methods
 public:
-	ImageSource(std::string imgPath);
+	ImageSource(const std::string imgPath);
 private:
 	void captureImageMat(std::string imgPath);
 
