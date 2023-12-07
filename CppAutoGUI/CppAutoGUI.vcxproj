@@ -135,6 +135,7 @@
     <ClCompile Include="ImageSource.cpp" />
     <ClCompile Include="Scanner.cpp" />
     <ClCompile Include="Screenshot.cpp" />
+    <ClCompile Include="ScannerThreadStackHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CppAutoGUI.h" />
@@ -143,6 +144,7 @@
     <ClInclude Include="Libraries.h" />
     <ClInclude Include="Scanner.h" />
     <ClInclude Include="Screenshot.h" />
+    <ClInclude Include="ScannerThreadStackHandler.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

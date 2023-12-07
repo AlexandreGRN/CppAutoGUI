@@ -6,9 +6,9 @@
 #include <typeinfo>
 #include <opencv2/highgui.hpp>
 #include <chrono>
-#include <thread>
 #include <filesystem>
-
+#include <thread>
+#include <future>
 struct coordinate2D {
     int x1;
     int y1;

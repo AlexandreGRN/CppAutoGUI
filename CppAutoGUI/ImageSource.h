@@ -3,7 +3,7 @@
 #include "image.h"
 
 // ImageSource not supposed to change throughout the program -> constexpr class | Not the case for Screenshot
-constexpr class ImageSource : public Image
+class ImageSource : public Image
 {
 	// Methods
 public:

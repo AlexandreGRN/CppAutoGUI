@@ -1,6 +1,5 @@
 
 #include "ImageSource.h"
-#include "Libraries.h"
 
 ImageSource::ImageSource(std::string imgPath) : Image() {
     captureImageMat(imgPath);

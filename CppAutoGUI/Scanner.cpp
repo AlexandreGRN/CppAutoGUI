@@ -1,6 +1,5 @@
 
 #include "Scanner.h"
-#include "Libraries.h"
 
 Scanner::Scanner() {
 
@@ -92,6 +91,7 @@ coordinate2D Scanner::checkForCompleteMatch(Image Haystack, Image Needle, int ha
         List of type <coordinate2D>
 
 */
+
 std::list<coordinate2D> Scanner::findMatchingPixelOnScreen(Image Haystack, Image Needle) {
     std::list<coordinate2D> coordinatesList;
     int HaystackHeight = Haystack.imageHeight;
@@ -110,6 +110,7 @@ std::list<coordinate2D> Scanner::findMatchingPixelOnScreen(Image Haystack, Image
 
             // If detect a matching first pixel (IE: if we see a potential match) -> Check if it match perfectly
             if (isWithinInterval(r, NeedleR1, 1.0) && isWithinInterval(g, NeedleG1, 1.0) && isWithinInterval(b, NeedleB1, 1.0)) {
+                // Add a new check for pixel is checked in a new thread if enough threads are available
                 coordinate2D newCoordinate = checkForCompleteMatch(Haystack, Needle, i, j);
                 if (newCoordinate.x1 != -1 \
                     && newCoordinate.y1 != -1 \

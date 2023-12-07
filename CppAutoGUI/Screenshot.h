@@ -1,6 +1,4 @@
 #pragma once
-
-#include "Libraries.h"
 #include "image.h"
 
 class Screenshot : public Image
