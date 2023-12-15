@@ -33,17 +33,17 @@ bool Scanner::isWithinInterval(double value, double target, double interval) {
         the point of coordinate (xMiddle, yMiddle) is the center of the image
         (IE: setCursorPos(yMiddle, xMiddle) will set the position of the cursor at the middle of the target image)
 */
-coordinate2D Scanner::checkForCompleteMatch(Image Haystack, Image Needle, int haystackI, int haystackJ) {
+coordinate2D Scanner::checkForCompleteMatch(Image* Haystack, Image* Needle, int haystackI, int haystackJ) {
     // Check every pixel of the target image (the needle) to check if it correspond
-    int truehaystackI = haystackI - Needle.firstI;
-    int truehaystackJ = haystackJ - Needle.firstJ;
-    auto HaystackData = Haystack.image.data;
-    auto NeedleData = Needle.image.data;
-    int HaystackChannels = Haystack.image.channels();
-    int NeedleChannels = Needle.image.channels();
-    int NeedleHeight = Needle.image.rows;
-    int NeedleWidth = Needle.image.cols;
-    int HaystackWidth = Haystack.image.cols;
+    int truehaystackI = haystackI - Needle->firstI;
+    int truehaystackJ = haystackJ - Needle->firstJ;
+    auto HaystackData = Haystack->image.data;
+    auto NeedleData = Needle->image.data;
+    int HaystackChannels = Haystack->image.channels();
+    int NeedleChannels = Needle->image.channels();
+    int NeedleHeight = Needle->image.rows;
+    int NeedleWidth = Needle->image.cols;
+    int HaystackWidth = Haystack->image.cols;
 
     for (int i = 0; i < NeedleHeight - 1; i++) {
         if (haystackI + i >= GetSystemMetrics(SM_CYSCREEN)) { return { -1, -1, -1, -1 }; }
@@ -69,10 +69,10 @@ coordinate2D Scanner::checkForCompleteMatch(Image Haystack, Image Needle, int ha
     return {
         truehaystackI,
         truehaystackJ,
-        truehaystackI + Needle.image.rows,
-        truehaystackJ + Needle.image.cols,
-        (truehaystackI + truehaystackI + Needle.image.rows) / 2,
-        (truehaystackJ + truehaystackJ + Needle.image.cols) / 2
+        truehaystackI + Needle->image.rows,
+        truehaystackJ + Needle->image.cols,
+        (truehaystackI + truehaystackI + Needle->image.rows) / 2,
+        (truehaystackJ + truehaystackJ + Needle->image.cols) / 2
     };
 }
 
@@ -92,15 +92,15 @@ coordinate2D Scanner::checkForCompleteMatch(Image Haystack, Image Needle, int ha
 
 */
 
-std::list<coordinate2D> Scanner::findMatchingPixelOnScreen(Image Haystack, Image Needle) {
+std::list<coordinate2D> Scanner::findMatchingPixelOnScreen(Image* Haystack, Image* Needle) {
     std::list<coordinate2D> coordinatesList;
-    int HaystackHeight = Haystack.imageHeight;
-    int HaystackWidth = Haystack.imageWidth;
-    int NeedleR1 = Needle.r1;
-    int NeedleG1 = Needle.g1;
-    int NeedleB1 = Needle.b1;
-    int channels = Haystack.image.channels();
-    auto data = Haystack.image.data;
+    int HaystackHeight = Haystack->imageHeight;
+    int HaystackWidth = Haystack->imageWidth;
+    int NeedleR1 = Needle->r1;
+    int NeedleG1 = Needle->g1;
+    int NeedleB1 = Needle->b1;
+    int channels = Haystack->image.channels();
+    auto data = Haystack->image.data;
     // Check every pixel to find a potential match
     for (int i = 0; i < HaystackHeight; i++) {
         for (int j = 0; j < HaystackWidth; j++) {
@@ -150,6 +150,6 @@ std::list<coordinate2D> Scanner::findMatchingPixelOnScreen(Image Haystack, Image
         Use:
             SetCursorPos(List<coordinate2D>.front().yMiddle, List<coordinate2D>.front().xMiddle)
 */
-std::list<coordinate2D> Scanner::locateOnScreen(Image Haystack, Image Needle) {
+std::list<coordinate2D> Scanner::locateOnScreen(Image* Haystack, Image* Needle) {
     return findMatchingPixelOnScreen(Haystack, Needle);
 }

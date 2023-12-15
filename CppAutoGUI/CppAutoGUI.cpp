@@ -4,6 +4,8 @@
 #include "Image.h"
 #include "Screenshot.h"
 #include "ImageSource.h"
+
+#include <memory.h>
 #include "ScannerThreadStackHandler.h"
 /*
 Speed test using:
@@ -21,23 +23,12 @@ int main()
     auto start = std::chrono::high_resolution_clock::now();
 
     // Initialize objects
-    Screenshot Haystack = {};
-    ImageSource Needle = { "C:/Users/Tulkii/Pictures/Screenshots/az.png" };
+    ImageSource* Needle{ new ImageSource("C:/Users/Tulkii/Pictures/Screenshots/az.png") };
+    Screenshot* Haystack{ new Screenshot() };
     Scanner scanner = {};
     ScannerThreadStackHandler threadStack = {};
 
-    std::vector<std::thread> threads;
-
-    for (int i = 0; i < 10; i++)
-    {
-        threadStack.AddNewThreadIfPossible(scanner, Haystack, Needle);
-    }
-
-    threadStack.WaitForAllThread();
-    imageFront1 = threadStack.GetCoordinates().front();
-    unsigned int numThreads = std::thread::hardware_concurrency();
-    std::cout << "Number of threads: " << numThreads << std::endl;
-
+    imageFront1 = scanner.locateOnScreen(Haystack, Needle).front();
 
     SetCursorPos(imageFront1.yMiddle, imageFront1.xMiddle);
     auto stop = std::chrono::high_resolution_clock::now();

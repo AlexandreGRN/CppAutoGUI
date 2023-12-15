@@ -53,7 +53,7 @@ void ScannerThreadStackHandler::AddNewThreadIfPossible(Scanner scanner, Image Ha
 void ScannerThreadStackHandler::MakeNewThread(Scanner scanner, Image Haystack, Image Needle)
 {
 	std::cout << "Adding new thread: " << results.size() << std::endl;
-	results.push_back(std::async(&Scanner::locateOnScreen, &scanner, Haystack, Needle));
+	//results.push_back(std::async(&Scanner::locateOnScreen, &scanner, Haystack, Needle));
 }
 
 /*
