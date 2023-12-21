@@ -1,11 +1,22 @@
 #pragma once
 #include "image.h"
 
-class Screenshot : public Image
+namespace autoGUI
 {
-public:
-	Screenshot();
-private:
-	BITMAPINFOHEADER createBitmapHeader(int width, int height);
-	void captureScreenMat(HWND hwnd);
-};
+	class Screenshot : public Image
+	{
+	public:
+		Screenshot();
+		~Screenshot();
+		Screenshot(const Screenshot&) = delete;
+		Screenshot(Screenshot&&) = delete;
+
+	private:
+
+		// Create the Bitmap Header that contains all the infos about the screenshot
+		BITMAPINFOHEADER createBitmapHeader(int width, int height);
+
+		// Create the screenshot object of type cv::Mat
+		void captureScreenMat(HWND hwnd);
+	};
+}

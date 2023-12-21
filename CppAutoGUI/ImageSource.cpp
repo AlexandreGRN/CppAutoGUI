@@ -1,8 +1,16 @@
 
 #include "ImageSource.h"
 
-ImageSource::ImageSource(std::string imgPath) : Image() {
+autoGUI::ImageSource::ImageSource(std::string const imgPath) : Image() {
     captureImageMat(imgPath);
+}
+
+autoGUI::ImageSource::~ImageSource() {
+	this->image.release();
+}
+
+autoGUI::ImageSource::ImageSource(ImageSource&& Copy) noexcept : Image(Copy.r1, Copy.g1, Copy.b1, Copy.imageWidth, Copy.imageHeight, Copy.firstI, Copy.firstJ) {
+    this->image = std::move(Copy.image);
 }
 
 /*
@@ -19,7 +27,7 @@ ImageSource::ImageSource(std::string imgPath) : Image() {
             its height
         }
 */
-void ImageSource::captureImageMat(std::string imgPath) {
+void autoGUI::ImageSource::captureImageMat(std::string const imgPath) {
     // Stock the image in a variable
     cv::Mat image = cv::imread(imgPath, cv::IMREAD_UNCHANGED);
 
@@ -27,8 +35,8 @@ void ImageSource::captureImageMat(std::string imgPath) {
     int imgcols = image.cols;
     int imgrows = image.rows;
     int imgr1, imgg1, imgb1, imgalpha1, firstColorCoordinateI, firstColorCoordinateJ;
-    for (int i = 0; i < image.rows; i++) {
-        for (int j = 0; j < image.cols; j++) {
+    for (int i = 0; i < imgrows; i++) {
+        for (int j = 0; j < imgcols; j++) {
             if (int(image.at<cv::Vec4b>(i, j)[3]) != 0) {
                 imgr1 = image.at<cv::Vec4b>(i, j)[2];
                 imgg1 = image.at<cv::Vec4b>(i, j)[1];

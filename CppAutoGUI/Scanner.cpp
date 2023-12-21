@@ -1,11 +1,7 @@
 
 #include "Scanner.h"
 
-Scanner::Scanner() {
-
-}
-
-bool Scanner::isWithinInterval(double value, double target, double interval) {
+bool autoGUI::Scanner::isWithinInterval(double value, double target, double interval) {
     return (std::fabs(value - target) <= interval);
 }
 
@@ -33,7 +29,7 @@ bool Scanner::isWithinInterval(double value, double target, double interval) {
         the point of coordinate (xMiddle, yMiddle) is the center of the image
         (IE: setCursorPos(yMiddle, xMiddle) will set the position of the cursor at the middle of the target image)
 */
-coordinate2D Scanner::checkForCompleteMatch(Image* Haystack, Image* Needle, int haystackI, int haystackJ) {
+coordinate2D autoGUI::Scanner::checkForCompleteMatch(Image* const Haystack, Image* const Needle, int const haystackI, int const haystackJ) {
     // Check every pixel of the target image (the needle) to check if it correspond
     int truehaystackI = haystackI - Needle->firstI;
     int truehaystackJ = haystackJ - Needle->firstJ;
@@ -59,7 +55,7 @@ coordinate2D Scanner::checkForCompleteMatch(Image* Haystack, Image* Needle, int 
             int gNeedle = NeedleData[NeedleTargetPixel + 1];
             int bNeedle = NeedleData[NeedleTargetPixel + 0];
 
-            // If not a matching pixel -> return an "error" coordinate2D
+            // If not a matching pixel -> return an "invalid" coordinate2D
             if (!(isWithinInterval(rHaystack, rNeedle, 1.0) || isWithinInterval(gHaystack, gNeedle, 1.0) || isWithinInterval(bHaystack, bNeedle, 1.0)))
             {
                 return { -1, -1, -1, -1 };
@@ -92,7 +88,7 @@ coordinate2D Scanner::checkForCompleteMatch(Image* Haystack, Image* Needle, int 
 
 */
 
-std::list<coordinate2D> Scanner::findMatchingPixelOnScreen(Image* Haystack, Image* Needle) {
+std::list<coordinate2D> autoGUI::Scanner::findMatchingPixelOnScreen(Image* const Haystack, Image* const Needle) {
     std::list<coordinate2D> coordinatesList;
     int HaystackHeight = Haystack->imageHeight;
     int HaystackWidth = Haystack->imageWidth;
@@ -100,13 +96,12 @@ std::list<coordinate2D> Scanner::findMatchingPixelOnScreen(Image* Haystack, Imag
     int NeedleG1 = Needle->g1;
     int NeedleB1 = Needle->b1;
     int channels = Haystack->image.channels();
-    auto data = Haystack->image.data;
     // Check every pixel to find a potential match
     for (int i = 0; i < HaystackHeight; i++) {
         for (int j = 0; j < HaystackWidth; j++) {
-            int r = data[channels * (HaystackWidth * i + j) + 2];
-            int g = data[channels * (HaystackWidth * i + j) + 1];
-            int b = data[channels * (HaystackWidth * i + j) + 0];
+            int r = Haystack->image.data[channels * (HaystackWidth * i + j) + 2];
+            int g = Haystack->image.data[channels * (HaystackWidth * i + j) + 1];
+            int b = Haystack->image.data[channels * (HaystackWidth * i + j) + 0];
 
             // If detect a matching first pixel (IE: if we see a potential match) -> Check if it match perfectly
             if (isWithinInterval(r, NeedleR1, 1.0) && isWithinInterval(g, NeedleG1, 1.0) && isWithinInterval(b, NeedleB1, 1.0)) {
@@ -150,6 +145,6 @@ std::list<coordinate2D> Scanner::findMatchingPixelOnScreen(Image* Haystack, Imag
         Use:
             SetCursorPos(List<coordinate2D>.front().yMiddle, List<coordinate2D>.front().xMiddle)
 */
-std::list<coordinate2D> Scanner::locateOnScreen(Image* Haystack, Image* Needle) {
+std::list<coordinate2D> autoGUI::Scanner::locateOnScreen(Image* Haystack, Image* Needle) {
     return findMatchingPixelOnScreen(Haystack, Needle);
 }

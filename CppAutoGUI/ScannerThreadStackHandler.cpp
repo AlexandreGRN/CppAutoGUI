@@ -32,7 +32,7 @@ void ScannerThreadStackHandler::WaitForAllThread()
 * Image Haystack object:  the screen or the main image (the haystack)
 * Image Needle object:    the target image (the needle)
 */
-void ScannerThreadStackHandler::AddNewThreadIfPossible(Scanner scanner, Image Haystack, Image Needle)
+void ScannerThreadStackHandler::AddNewThreadIfPossible(autoGUI::Scanner scanner, Image Haystack, Image Needle)
 {
 	while (results.size() >= maxThreads)
 	{
@@ -50,7 +50,7 @@ void ScannerThreadStackHandler::AddNewThreadIfPossible(Scanner scanner, Image Ha
 * Image Haystack object:  the screen or the main image (the haystack)
 * Image Needle object:    the target image (the needle)
 */
-void ScannerThreadStackHandler::MakeNewThread(Scanner scanner, Image Haystack, Image Needle)
+void ScannerThreadStackHandler::MakeNewThread(autoGUI::Scanner scanner, Image Haystack, Image Needle)
 {
 	std::cout << "Adding new thread: " << results.size() << std::endl;
 	//results.push_back(std::async(&Scanner::locateOnScreen, &scanner, Haystack, Needle));

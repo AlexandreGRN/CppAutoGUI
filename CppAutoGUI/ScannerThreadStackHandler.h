@@ -19,11 +19,11 @@ public:
 	ScannerThreadStackHandler(uint maxThread);
 
 	void WaitForAllThread();
-	void AddNewThreadIfPossible(Scanner scanner, Image Haystack, Image Needle);
+	void AddNewThreadIfPossible(autoGUI::Scanner scanner, Image Haystack, Image Needle);
 	inline std::list<coordinate2D> GetCoordinates() { return coordinates; }
 
 private:
-	void MakeNewThread(Scanner scanner, Image Haystack, Image Needle);
+	void MakeNewThread(autoGUI::Scanner scanner, Image Haystack, Image Needle);
 	void FinishSomeThread();
 
 	std::vector<std::future<std::list<coordinate2D>>> results;

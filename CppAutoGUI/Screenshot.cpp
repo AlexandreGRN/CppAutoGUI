@@ -1,8 +1,13 @@
 #include "Screenshot.h"
 
-Screenshot::Screenshot() : Image()
+autoGUI::Screenshot::Screenshot() : Image()
 {
     captureScreenMat(GetDesktopWindow());
+}
+
+autoGUI::Screenshot::~Screenshot()
+{
+    this->image.release();
 }
 
 /*
@@ -19,7 +24,7 @@ Screenshot::Screenshot() : Image()
     What is a BitMap:
         A Bitmap is a representation of an image, here, A bitMap Header contains all the necessary informations for the creation of a bitMap
 */
-BITMAPINFOHEADER Screenshot::createBitmapHeader(int width, int height) {
+BITMAPINFOHEADER autoGUI::Screenshot::createBitmapHeader(int const width, int const height) {
     BITMAPINFOHEADER  bi;
 
     // create a bitmap
@@ -51,7 +56,7 @@ BITMAPINFOHEADER Screenshot::createBitmapHeader(int width, int height) {
             the screen height
         }
 */
-void Screenshot::captureScreenMat(HWND hwnd) {
+void autoGUI::Screenshot::captureScreenMat(HWND hwnd) {
     cv::Mat src;
 
     // Get handles to a device context (DC)

@@ -3,12 +3,17 @@
 #include "image.h"
 
 // ImageSource not supposed to change throughout the program -> constexpr class | Not the case for Screenshot
-class ImageSource : public Image
+namespace autoGUI
 {
-	// Methods
-public:
-	ImageSource(const std::string imgPath);
-private:
-	void captureImageMat(std::string imgPath);
-
-};
+	class ImageSource : public Image
+	{
+		// Methods
+	public:
+		ImageSource(std::string imgPath);
+		~ImageSource();
+		ImageSource(ImageSource&& Copy) noexcept;
+		ImageSource(ImageSource& Copy) = default;
+	private:
+		void captureImageMat(std::string const imgPath);
+	};
+}

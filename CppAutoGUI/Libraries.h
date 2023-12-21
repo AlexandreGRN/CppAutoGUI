@@ -5,7 +5,6 @@
 #include <string>
 #include <typeinfo>
 #include <opencv2/highgui.hpp>
-#include <chrono>
 #include <filesystem>
 #include <thread>
 #include <future>
