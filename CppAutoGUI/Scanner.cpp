@@ -1,6 +1,5 @@
 
 #include "Scanner.h"
-
 bool autoGUI::Scanner::isWithinInterval(double value, double target, double interval) {
     return (std::fabs(value - target) <= interval);
 }
@@ -31,15 +30,15 @@ bool autoGUI::Scanner::isWithinInterval(double value, double target, double inte
 */
 coordinate2D autoGUI::Scanner::checkForCompleteMatch(Image* const Haystack, Image* const Needle, int const haystackI, int const haystackJ) {
     // Check every pixel of the target image (the needle) to check if it correspond
-    int truehaystackI = haystackI - Needle->firstI;
-    int truehaystackJ = haystackJ - Needle->firstJ;
-    auto HaystackData = Haystack->image.data;
-    auto NeedleData = Needle->image.data;
+    int truehaystackI    = haystackI - Needle->firstI;
+    int truehaystackJ    = haystackJ - Needle->firstJ;
+    auto HaystackData    = Haystack->image.data;
+    auto NeedleData      = Needle->image.data;
     int HaystackChannels = Haystack->image.channels();
-    int NeedleChannels = Needle->image.channels();
-    int NeedleHeight = Needle->image.rows;
-    int NeedleWidth = Needle->image.cols;
-    int HaystackWidth = Haystack->image.cols;
+    int NeedleChannels   = Needle->image.channels();
+    int NeedleHeight     = Needle->image.rows;
+    int NeedleWidth      = Needle->image.cols;
+    int HaystackWidth    = Haystack->image.cols;
 
     for (int i = 0; i < NeedleHeight - 1; i++) {
         if (haystackI + i >= GetSystemMetrics(SM_CYSCREEN)) { return { -1, -1, -1, -1 }; }
@@ -88,16 +87,15 @@ coordinate2D autoGUI::Scanner::checkForCompleteMatch(Image* const Haystack, Imag
 
 */
 
-std::list<coordinate2D> autoGUI::Scanner::findMatchingPixelOnScreen(Image* const Haystack, Image* const Needle) {
-    std::list<coordinate2D> coordinatesList;
+void autoGUI::Scanner::findMatchingPixelOnScreen(Image* const Haystack, Image* const Needle, int const HeightCheckStart, int const HeightCheckEnd, std::vector<coordinate2D>* coordinatesList, std::mutex* mtx) {
     int HaystackHeight = Haystack->imageHeight;
-    int HaystackWidth = Haystack->imageWidth;
-    int NeedleR1 = Needle->r1;
-    int NeedleG1 = Needle->g1;
-    int NeedleB1 = Needle->b1;
-    int channels = Haystack->image.channels();
+    int HaystackWidth  = Haystack->imageWidth;
+    int NeedleR1       = Needle->r1;
+    int NeedleG1       = Needle->g1;
+    int NeedleB1       = Needle->b1;
+    int channels       = Haystack->image.channels();
     // Check every pixel to find a potential match
-    for (int i = 0; i < HaystackHeight; i++) {
+    for (int i = HeightCheckStart; i < HaystackHeight && i < HeightCheckEnd; i++) {
         for (int j = 0; j < HaystackWidth; j++) {
             int r = Haystack->image.data[channels * (HaystackWidth * i + j) + 2];
             int g = Haystack->image.data[channels * (HaystackWidth * i + j) + 1];
@@ -111,12 +109,13 @@ std::list<coordinate2D> autoGUI::Scanner::findMatchingPixelOnScreen(Image* const
                     && newCoordinate.y1 != -1 \
                     && newCoordinate.x2 != -1 \
                     && newCoordinate.y2 != -1) {
-                    coordinatesList.push_back(newCoordinate);
+                    mtx->lock();
+                    coordinatesList->push_back(newCoordinate);
+                    mtx->unlock();
                 }
             }
         }
     }
-    return coordinatesList;
 }
 
 /*
@@ -145,6 +144,16 @@ std::list<coordinate2D> autoGUI::Scanner::findMatchingPixelOnScreen(Image* const
         Use:
             SetCursorPos(List<coordinate2D>.front().yMiddle, List<coordinate2D>.front().xMiddle)
 */
-std::list<coordinate2D> autoGUI::Scanner::locateOnScreen(Image* Haystack, Image* Needle) {
-    return findMatchingPixelOnScreen(Haystack, Needle);
+std::vector<coordinate2D> autoGUI::Scanner::locateOnScreen(Image* Haystack, Image* Needle) {
+    std::vector<coordinate2D> coordinatesList;
+    std::vector<std::jthread> threads;
+    std::mutex                mtx;
+
+    // Find all the potential matches in 11 new thread
+    for (int i = 0; i < 11; i++)
+        threads.push_back(std::jthread(&autoGUI::Scanner::findMatchingPixelOnScreen, this, Haystack, Needle, i*100, (i+1)*100, &coordinatesList, &mtx));
+    for (auto& t : threads)
+		t.join();
+
+    return coordinatesList;
 }

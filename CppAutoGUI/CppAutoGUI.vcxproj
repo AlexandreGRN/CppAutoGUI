@@ -119,6 +119,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\Users\Tulkii\Documents\Libraries\opencv\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -131,11 +132,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CppAutoGUI.cpp" />
-    <ClCompile Include="Image.cpp" />
     <ClCompile Include="ImageSource.cpp" />
     <ClCompile Include="Scanner.cpp" />
     <ClCompile Include="Screenshot.cpp" />
-    <ClCompile Include="ScannerThreadStackHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CppAutoGUI.h" />
@@ -144,7 +143,6 @@
     <ClInclude Include="Libraries.h" />
     <ClInclude Include="Scanner.h" />
     <ClInclude Include="Screenshot.h" />
-    <ClInclude Include="ScannerThreadStackHandler.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

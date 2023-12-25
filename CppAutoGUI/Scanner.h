@@ -8,10 +8,10 @@ namespace autoGUI
 	class Scanner
 	{
 	public:
-		std::list<coordinate2D> locateOnScreen(Image* Haystack, Image* Needle);
+		std::vector<coordinate2D> locateOnScreen(Image* Haystack, Image* Needle);
 
 	private:
-		std::list<coordinate2D> findMatchingPixelOnScreen(Image* Haystack, Image* Needle);
+		void findMatchingPixelOnScreen(Image* Haystack, Image* Needle, int const HeightCheckStart, int const HeightCheckEnd, std::vector<coordinate2D>* coordinateList, std::mutex* mtx);
 		coordinate2D checkForCompleteMatch(Image* Haystack, Image* Needle, int haystackI, int haystackJ);
 		bool isWithinInterval(double value, double target, double interval);
 	};
